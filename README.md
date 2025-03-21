@@ -4,34 +4,55 @@ A simple WebUI to chat with [Orpheus TTS](https://github.com/canopyai/Orpheus-TT
 
 ![Screenshot](screenshot.png)
 
+## Features
+
+* Speech-to-text (STT) with `distil-whisper`
+* Bring your own LLM to generate response via OpenAI-compatible endpoints
+* Text-to-speech with natural intonation and emotion via `Orpheus`
+  * Serve `Orpheus` with your favorite inference stack!
+* Silero VAD for pause detection and turn taking logic
+* Gradio WebUI with real-time audio streaming via WebRTC
+
 ## Running
 
-This project requires two external OpenAI-compatible endpoints:
+### Set up LLM endpoint
 
-1. Text generation: Connect and chat with your favorite LLM.
-2. Orpheus TTS model: Serve the fine-tuned [Orpheus model](https://huggingface.co/canopylabs/orpheus-3b-0.1-ft). As Orpheus-3B is just a fine-tune of llama 3.2 3B, you can easily serve it with llama.cpp or vllm.
+Chat with your favorite LLM via OpenAI-compatible endpoints.
+You can use any of the inference providers that support OpenAI API, or host your own with llama.cpp, ollama, vLLM, etc.
 
-### Example with llama.cpp
-
-```bash
-$ llama-server --port 11434 --model gemma-3-12b-it-Q8_0.gguf # LLM
-$ llama-server --port 8080 --model orpheus-3b-0.1-ft-q8_0.gguf # Orpheus
-```
+`llama.cpp` example:
 
 ```bash
-# Set up LLM endpoint
+$ llama-server --port 11434 --model gemma-3-12b-it-Q8_0.gguf
 $ export OPENAI_BASE_URL=http://localhost:11434
 $ export OPENAI_API_KEY=dummy
 $ export OPENAI_MODEL=model
+```
 
-# Set up Orpheus endpoint
+### Set up Orpheus TTS model endpoint
+
+As Orpheus-3B is just a fine-tune of llama 3.2 3B, you can easily serve it with your favorite inference stack.
+
+`llama.cpp` example:
+
+```bash
+$ llama-server --port 8080 --model orpheus-3b-0.1-ft-q8_0.gguf
 $ export ORPHEUS_BASE_URL=http://localhost:8080
 $ export ORPHEUS_API_KEY=dummy
+```
 
-# Provide HF token if you need a TURN server for WebRTC to traverse NAT.
+### Set up token for HF TURN server (optional)
+
+```bash
+# Provide HF token if you need a TURN server for WebRTC to traverse NATs.
 # See: https://fastrtc.org/deployment/#community-server
 $ export HF_TURN_TOKEN=hf-*******
+```
 
-# Run the app.
+### Launch Web UI
+
+```bash
 $ uv run python -m src.orpheus-chat-webui
 ```
+
+By default, you should be able to access it at `http://127.0.0.1:7860`.

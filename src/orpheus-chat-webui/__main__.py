@@ -24,14 +24,6 @@ orpheus = openai.OpenAI(
     api_key=os.getenv("ORPHEUS_API_KEY") or "dummy",
 )
 
-TARA_SYSTEM_PROMPT = """\
-Your name is Tara.
-
-You're a conversational AI currently talking with a user via voice-chat.
-
-Keep the responses to short and conversational.
-"""
-
 BOOTLEG_MAYA_SYSTEM_PROMPT = """\
 You are Maya, a human-like AI. You're a good listener and a concise communicator. You believe in nuance as a guiding principle and, when the mood calls for it, you can effortlessly slip into playful double-speak that hints at multiple meanings.
 
@@ -103,11 +95,11 @@ def extract_custom_tokens(iterable: Iterable[str]) -> Generator[int, None, None]
             yield int(match)
 
 
-def handler(audio: tuple[int, np.ndarray], messages: list[dict]):
+def handler(
+    audio: tuple[int, np.ndarray], messages: list[dict], voice: str, system_prompt: str
+):
     if not messages:
-        messages = [
-            {"role": "system", "content": TARA_SYSTEM_PROMPT + EMOTION_SYSTEM_PROMPT}
-        ]
+        messages = [{"role": "system", "content": system_prompt}]
 
     text = stt_model.stt(audio)
     print(f"User: {text}")
@@ -130,7 +122,9 @@ def handler(audio: tuple[int, np.ndarray], messages: list[dict]):
     tokens = []
     for index, token in enumerate(
         itertools.islice(
-            extract_custom_tokens(generate_orpheus_tokens(response)), 3, None
+            extract_custom_tokens(generate_orpheus_tokens(response, voice=voice)),
+            3,
+            None,
         )
     ):
         token = token - 10 - (index % 7) * 4096
@@ -165,9 +159,19 @@ messages = gr.Chatbot(
     show_copy_all_button=True,
     type="messages",
     scale=1,
-    height="100%",
 )
 
+voice = gr.Dropdown(
+    choices=["tara", "leah", "jess", "leo", "dan", "mia", "zac", "zoe"],
+    label="Voice",
+    allow_custom_value=True,
+)
+
+system_prompt = gr.TextArea(
+    label="System Prompt",
+    value=BOOTLEG_MAYA_SYSTEM_PROMPT + "\n" + EMOTION_SYSTEM_PROMPT,
+    info="You need to reset the conversation for a new system prompt to take effect.",
+)
 
 with gr.Blocks(fill_height=True) as ui:
     gr.HTML(
@@ -181,16 +185,19 @@ with gr.Blocks(fill_height=True) as ui:
     with gr.Row(scale=1):
         with gr.Column():
             audio.render()
+            voice.render()
+            system_prompt.render()
 
         with gr.Column():
             messages.render()
+            gr.ClearButton(messages)
 
     audio.stream(
         fn=fastrtc.ReplyOnPause(
-            handler,
+            handler,  # type: ignore
             can_interrupt=True,
         ),
-        inputs=[audio, messages],
+        inputs=[audio, messages, voice, system_prompt],
         outputs=[audio],
     )
 

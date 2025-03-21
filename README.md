@@ -2,6 +2,8 @@
 
 A simple WebUI to chat with [Orpheus TTS](https://github.com/canopyai/Orpheus-TTS) via WebRTC.
 
+![Screenshot](screenshot.png)
+
 ## Running
 
 This project requires two external OpenAI-compatible endpoints:

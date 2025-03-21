@@ -178,8 +178,14 @@ with gr.Blocks() as ui:
         rtc_configuration=rtc_credentials,
     )
 
-    # messages = gr.Chatbot(type="messages", render_markdown=False)
-    messages = gr.State(value=[])
+    messages = gr.Chatbot(
+        allow_tags=True,
+        group_consecutive_messages=False,
+        label="Transcript",
+        render_markdown=False,
+        show_copy_all_button=True,
+        type="messages",
+    )
 
     audio.stream(
         fn=fastrtc.ReplyOnPause(
@@ -190,8 +196,6 @@ with gr.Blocks() as ui:
         outputs=[audio],
     )
 
-    audio.on_additional_outputs(
-        lambda m: m, outputs=messages, queue=False, show_progress="hidden"
-    )
+    audio.on_additional_outputs(lambda m: m, outputs=messages, show_progress="hidden")
 
     ui.launch()

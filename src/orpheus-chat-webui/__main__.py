@@ -172,6 +172,14 @@ if hf_turn_token != None:
     rtc_credentials = fastrtc.get_hf_turn_credentials(token=hf_turn_token)
 
 with gr.Blocks() as ui:
+    gr.HTML(
+        """\
+        <h1 style='text-align: center'>
+        Orpheus Chat WebUI (Powered by <a href="https://github.com/canopyai/Orpheus-TTS">Orpheus</a> & <a href="https://fastrtc.org/">FastRTC</a> ⚡️)
+        </h1>
+        """
+    )
+
     audio = fastrtc.WebRTC(
         modality="audio",
         mode="send-receive",

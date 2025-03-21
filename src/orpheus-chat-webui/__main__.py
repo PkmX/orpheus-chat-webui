@@ -171,7 +171,25 @@ rtc_credentials = None
 if hf_turn_token != None:
     rtc_credentials = fastrtc.get_hf_turn_credentials(token=hf_turn_token)
 
-with gr.Blocks() as ui:
+audio = fastrtc.WebRTC(
+    modality="audio",
+    mode="send-receive",
+    rtc_configuration=rtc_credentials,
+)
+
+messages = gr.Chatbot(
+    allow_tags=True,
+    group_consecutive_messages=False,
+    label="Transcript",
+    render_markdown=False,
+    show_copy_all_button=True,
+    type="messages",
+    scale=1,
+    height="100%",
+)
+
+
+with gr.Blocks(fill_height=True) as ui:
     gr.HTML(
         """\
         <h1 style='text-align: center'>
@@ -180,20 +198,12 @@ with gr.Blocks() as ui:
         """
     )
 
-    audio = fastrtc.WebRTC(
-        modality="audio",
-        mode="send-receive",
-        rtc_configuration=rtc_credentials,
-    )
+    with gr.Row(scale=1):
+        with gr.Column():
+            audio.render()
 
-    messages = gr.Chatbot(
-        allow_tags=True,
-        group_consecutive_messages=False,
-        label="Transcript",
-        render_markdown=False,
-        show_copy_all_button=True,
-        type="messages",
-    )
+        with gr.Column():
+            messages.render()
 
     audio.stream(
         fn=fastrtc.ReplyOnPause(

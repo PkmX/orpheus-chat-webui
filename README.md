@@ -24,7 +24,7 @@ You can use any of the inference providers that support OpenAI API, or host your
 
 ```bash
 $ llama-server --port 11434 --model gemma-3-12b-it-Q8_0.gguf
-$ export OPENAI_BASE_URL=http://localhost:11434
+$ export OPENAI_BASE_URL=http://localhost:11434/v1/
 $ export OPENAI_API_KEY=dummy
 $ export OPENAI_MODEL=model
 ```
@@ -37,7 +37,7 @@ As Orpheus-3B is just a fine-tune of llama 3.2 3B, you can easily serve it with 
 
 ```bash
 $ llama-server --port 8080 --model orpheus-3b-0.1-ft-q8_0.gguf
-$ export ORPHEUS_BASE_URL=http://localhost:8080
+$ export ORPHEUS_BASE_URL=http://localhost:8080/v1/
 $ export ORPHEUS_API_KEY=dummy
 ```
 

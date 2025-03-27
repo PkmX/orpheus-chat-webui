@@ -196,6 +196,13 @@ with gr.Blocks(fill_height=True) as ui:
         fn=fastrtc.ReplyOnPause(
             handler,  # type: ignore
             can_interrupt=True,
+            algo_options=fastrtc.AlgoOptions(
+                started_talking_threshold=0.5,
+                speech_threshold=0.5,
+            ),
+            model_options=fastrtc.SileroVadOptions(
+                threshold=0.7,
+            ),
         ),
         inputs=[audio, messages, voice, system_prompt],
         outputs=[audio],
